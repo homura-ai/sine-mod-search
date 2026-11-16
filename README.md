@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> Sine Mod Search is now part of [Homuzen](https://github.com/homura-ai/homuzen), and this repository is no longer updated. To switch, install `https://github.com/homura-ai/homuzen` in Sine, remove this mod, and turn on **Enable Sine Mod Search** in Homuzen's settings. Your settings carry over.
+
 # [Sine Mod Search](https://github.com/homura-ai/sine-mod-search)
 
 Adds a search field above **Settings → Sine Mods → Installed Mods** in Zen.
