@@ -6,6 +6,7 @@
   window[key]?.destroy();
   const document = window.document;
   const hiddenAttribute = "data-sine-search-hidden";
+  const highlightName = "sine-mod-search";
   const normalize = value => String(value ?? "").normalize("NFKD")
     .replace(/\p{M}/gu, "").toLowerCase().replace(/[*~]/g, "");
   // Only declared settings text; never read users' current preference values.
@@ -40,17 +41,56 @@
     for (const [name, value] of Object.entries(attributes)) node.setAttribute(name, value);
     return node;
   }
+  // Ranges for each query word in a card's text, including its settings dialog.
+  // A highlight registry paints them without changing Sine's elements.
+  function matchRanges(card, words) {
+    const ranges = [];
+    const walker = document.createTreeWalker(card, window.NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const value = node.data;
+      let text = "";
+      const starts = [];
+      const ends = [];
+      for (let i = 0; i < value.length;) {
+        const char = String.fromCodePoint(value.codePointAt(i));
+        for (const part of normalize(char)) {
+          text += part;
+          starts.push(i);
+          ends.push(i + char.length);
+        }
+        i += char.length;
+      }
+      for (const word of words) {
+        for (let at = text.indexOf(word); at !== -1; at = text.indexOf(word, at + word.length)) {
+          const range = document.createRange();
+          range.setStart(node, starts[at]);
+          range.setEnd(node, ends[at + word.length - 1]);
+          ranges.push(range);
+        }
+      }
+    }
+    return ranges;
+  }
+  function highlight(ranges) {
+    const registry = window.CSS?.highlights;
+    if (!registry || typeof window.Highlight !== "function") return;
+    if (ranges.length) registry.set(highlightName, new window.Highlight(...ranges));
+    else registry.delete(highlightName);
+  }
   function apply() {
     if (destroyed || !list || !input) return;
     const words = normalize(input.value).trim().split(/\s+/).filter(Boolean);
     const cards = [...list.children].filter(card => card.matches(".sineItem[mod-id]"));
     let matches = 0;
+    const ranges = [];
     for (const card of cards) {
       const text = normalize(`${index.get(card.getAttribute("mod-id")) ?? ""} ${card.textContent}`);
       const matched = words.every(word => text.includes(word));
       card.toggleAttribute(hiddenAttribute, !matched);
       if (matched) matches++;
+      if (matched && words.length) ranges.push(...matchRanges(card, words));
     }
+    highlight(ranges);
     const message = loading ? "Indexing settings…" :
       words.length ? (matches ? `${matches} of ${cards.length} mods match` : "No matching mods") :
       `${cards.length} installed ${cards.length === 1 ? "mod" : "mods"}`;
@@ -139,6 +179,7 @@
     if (list) for (const card of list.children) card.removeAttribute(hiddenAttribute);
     bar?.remove();
     style?.remove();
+    highlight([]);
     if (window[key]?.destroy === destroy) delete window[key];
   }
   style = element("style");
@@ -148,6 +189,7 @@
     #sine-mod-search input { box-sizing: border-box; width: 100%; margin: 0; font: inherit; }
     #sine-mod-search-status { font-size: 0.9em; opacity: 0.75; }
     #sineModsList > [${hiddenAttribute}] { display: none !important; }
+    ::highlight(${highlightName}) { background-color: Mark; color: MarkText; }
   `;
   document.documentElement.append(style);
   window[key] = { destroy };

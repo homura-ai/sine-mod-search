@@ -9,8 +9,10 @@ or press Escape to restore the full list.
 Matching cards retain Sine's normal Configure, enable, update, and remove controls.
 Settings are indexed from local installed preference files, including disabled
 mods and settings that have not been opened. The mod does not change preferences,
-enable other mods, or send search text anywhere. Results filter whole mod cards;
-the settings dialog itself stays unchanged.
+enable other mods, or send search text anywhere. Results filter whole mod cards,
+and the matching words are highlighted in each card and inside its Configure
+popup, without changing the popup's controls. Sine only builds a disabled mod's
+popup after it is enabled, so those settings match but have no popup text to mark.
 
 ## Installation
 
@@ -29,13 +31,15 @@ The search reindexes when Sine rebuilds the installed list or the settings windo
 regains focus. Disabling or removing the mod removes its UI and filtering.
 
 Run `npm install`, then `npm test`. The DOM tests cover name and settings search,
+highlighting in cards and settings popups,
 disabled mods, preference keys, dropdown options, delayed UI creation, rebuilt
 lists, incomplete preference files, Escape, reload, and unloading during indexing.
 They simulate browser APIs; they do not establish live Firefox/XUL compatibility.
 
 Live smoke test after installation:
 
-1. Search for a mod name, a settings label, and a raw preference key.
+1. Search for a mod name, a settings label, and a raw preference key. Check that
+   the words are highlighted in the cards and in the matching mod's Configure popup.
 2. Search for a setting in a disabled mod before opening its Configure dialog.
 3. Open Configure on an enabled matching mod and verify its controls still work.
 4. Search for a nonexistent term, then clear with Escape.

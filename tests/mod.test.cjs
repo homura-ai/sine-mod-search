@@ -13,7 +13,8 @@ function setup(t, { late = false, broken = false, deferred = false } = {}) {
   const w = dom.window;
   t.after(() => w.close());
   const mods = {
-    alpha: { name: "Café Tabs", description: "Tab layout", preferences: "preferences.json", enabled: true },
+    alpha: { name: "Café Tabs", description: "Tab layout", preferences: "preferences.json", enabled: true,
+      dialog: "Accent colour for café tabs" },
     beta: { name: "Sidebar", preferences: "config/preferences.json", enabled: false },
     gamma: { name: "Plain Mod" }
   };
@@ -29,6 +30,8 @@ function setup(t, { late = false, broken = false, deferred = false } = {}) {
       [{ label: "Position", property: "uc.sidebar.position", options: [{ label: "Bottom edge", value: "bottom" }] }];
   } };
   w.console.warn = () => {};
+  w.Highlight = class { constructor(...ranges) { this.ranges = ranges; } };
+  w.CSS = { highlights: new Map() };
   let unload;
   w.addUnloadListener = callback => { unload = callback; };
   function render() {
@@ -39,7 +42,9 @@ function setup(t, { late = false, broken = false, deferred = false } = {}) {
       w.document.body.append(list);
     }
     list.innerHTML = Object.entries(mods).map(([id, mod]) =>
-      `<div class="sineItem" mod-id="${id}"><h3>${mod.name}</h3><button>Configure</button></div>`).join("");
+      `<div class="sineItem" mod-id="${id}"><h3>${mod.name}</h3><button>Configure</button>` +
+      (mod.dialog ? `<dialog class="sineItemPreferenceDialog"><div class="sineItemPreferenceDialogContent">` +
+        `<label class="sineItemPreferenceLabel">${mod.dialog}</label></div></dialog>` : "") + `</div>`).join("");
     return list;
   }
   if (!late) render();
@@ -51,7 +56,9 @@ function setup(t, { late = false, broken = false, deferred = false } = {}) {
   };
   const visible = () => [...w.document.querySelectorAll(".sineItem:not([data-sine-search-hidden])")]
     .map(card => card.getAttribute("mod-id"));
-  return { w, query, visible, render, mods, unload: () => unload(), finish: () => finish() };
+  const highlighted = () => [...(w.CSS.highlights.get("sine-mod-search")?.ranges ?? [])]
+    .map(range => `${range.startContainer.parentElement.tagName.toLowerCase()}:${range.toString()}`);
+  return { w, query, visible, highlighted, render, mods, unload: () => unload(), finish: () => finish() };
 }
 
 test("finds names, formatted settings, preference keys and disabled-mod dropdown options", async t => {
@@ -64,6 +71,22 @@ test("finds names, formatted settings, preference keys and disabled-mod dropdown
     s.query(query);
     assert.deepEqual(s.visible(), expected, query);
   }
+});
+
+test("highlights matched words in visible cards and their settings dialogs", async t => {
+  const s = setup(t);
+  await pause();
+  s.query("CAFE accent");
+  assert.deepEqual(s.highlighted(), ["h3:Café", "label:café", "label:Accent"]);
+  s.query("tabs");
+  assert.deepEqual(s.highlighted(), ["h3:Tabs", "label:tabs"]);
+  s.query("bottom");
+  assert.deepEqual(s.highlighted(), [], "a settings-only match in a closed, unloaded dialog has no text to mark");
+  s.query("");
+  assert.equal(s.w.CSS.highlights.has("sine-mod-search"), false);
+  s.query("cafe");
+  s.unload();
+  assert.equal(s.w.CSS.highlights.has("sine-mod-search"), false);
 });
 
 test("Escape clears and no-match status is accessible", async t => {
