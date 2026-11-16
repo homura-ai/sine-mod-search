@@ -53,8 +53,10 @@
       const ends = [];
       for (let i = 0; i < value.length;) {
         const char = String.fromCodePoint(value.codePointAt(i));
-        for (const part of normalize(char)) {
-          text += part;
+        const part = normalize(char);
+        text += part;
+        // One entry per UTF-16 unit, matching indexOf offsets.
+        for (let unit = 0; unit < part.length; unit++) {
           starts.push(i);
           ends.push(i + char.length);
         }

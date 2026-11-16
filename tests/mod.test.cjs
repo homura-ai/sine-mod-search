@@ -14,7 +14,7 @@ function setup(t, { late = false, broken = false, deferred = false } = {}) {
   t.after(() => w.close());
   const mods = {
     alpha: { name: "Café Tabs", description: "Tab layout", preferences: "preferences.json", enabled: true,
-      dialog: "Accent colour for café tabs" },
+      dialog: "🎨 Accent colour for café tabs" },
     beta: { name: "Sidebar", preferences: "config/preferences.json", enabled: false },
     gamma: { name: "Plain Mod" }
   };
