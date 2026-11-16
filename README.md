@@ -1,4 +1,4 @@
-# Sine Mod Search
+# [Sine Mod Search](https://github.com/homura-ai/sine-mod-search)
 
 Adds a search field above **Settings → Sine Mods → Installed Mods** in Zen.
 Search mod names, descriptions, settings labels, preference keys such as
@@ -14,9 +14,14 @@ and the matching words are highlighted in each card and inside its Configure
 popup, without changing the popup's controls. Sine only builds a disabled mod's
 popup after it is enabled, so those settings match but have no popup text to mark.
 
+![Installed mod search with highlighted matches](https://raw.githubusercontent.com/homura-ai/sine-mod-search/main/screenshot.png)
+
+The [README](https://raw.githubusercontent.com/homura-ai/sine-mod-search/main/README.md)
+and preview image are also linked from the mod metadata.
+
 ## Installation
 
-Enter `https://github.com/01-1/sine-mod-search` in Sine's custom GitHub repository
+Enter `https://github.com/homura-ai/sine-mod-search` in Sine's custom GitHub repository
 installer. Allow JavaScript mods from unofficial sources if Sine requests it.
 Reopen Settings if needed. No build step is required, and `package.json` and
 `tests/` are only for development.
@@ -25,6 +30,10 @@ Reopen Settings if needed. No build step is required, and `package.json` and
 
 Targets Sine's `#sineModsList` / `.sineItem[mod-id]` settings UI and local mod
 metadata API, checked against [Sine source](https://github.com/CosmoCreeper/Sine/tree/fb0bd4ca6af888f10648e126947f7d1f82228433/src).
+Verified on Zen **1.24.2b** with Sine/Cosine **2.3.4.1c** on 2026-11-16,
+using a temporary copy of an installed profile. Name, settings-label, preference-key,
+and disabled-mod settings searches worked across 29 mod cards. Card and Configure
+popup highlights, native popup controls, and Escape clearing also passed.
 Works in `about:preferences` and `about:settings`, waiting for Sine's asynchronously
 created UI. Sine/Cosine versions that change these internal APIs may need an update.
 The search reindexes when Sine rebuilds the installed list or the settings window

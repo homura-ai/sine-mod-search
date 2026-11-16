@@ -2,10 +2,12 @@
   "id": "sine-mod-search",
   "name": "Sine Mod Search",
   "description": "Search installed mods by name, description, settings labels, options, and preference keys.",
-  "homepage": "https://github.com/01-1/sine-mod-search",
-  "version": "1.1.0",
+  "homepage": "https://github.com/homura-ai/sine-mod-search",
+  "readme": "https://raw.githubusercontent.com/homura-ai/sine-mod-search/main/README.md",
+  "image": "https://raw.githubusercontent.com/homura-ai/sine-mod-search/main/screenshot.png",
+  "version": "1.1.1",
   "createdAt": "2026-09-21",
-  "updatedAt": "2026-11-16T19:10:00Z",
+  "updatedAt": "2026-11-16T20:10:00Z",
   "style": "chrome.css",
   "scripts": {
     "sine-mod-search.uc.js": {
